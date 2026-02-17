@@ -1,0 +1,27 @@
+---
+description: General AI behavior preferences for this project
+alwaysApply: true
+---
+
+# AI Behavior Preferences
+
+## Documentation Files
+
+Do not create markdown documentation files (`.md`) unless explicitly requested by the user. This includes:
+- README files
+- CHANGELOG files
+- Documentation in `docs/` directory
+- Any other `.md` files
+
+Only create these files when the user specifically asks for them.
+
+## Code Explanation
+
+When making code choices or implementation decisions, explain your reasoning clearly:
+
+- Why you chose a particular approach over alternatives
+- Trade-offs of the chosen solution
+- Any assumptions you're making
+- How the implementation fits with the existing codebase
+
+Provide context and rationale to help the user understand not just *what* you're doing, but *why* you're doing it that way.

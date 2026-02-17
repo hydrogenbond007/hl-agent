@@ -1,0 +1,95 @@
+{
+  "name": "@hyperliquid/agent-sdk",
+  "version": "0.1.0",
+  "description": "Secure, high-level toolkit for building AI agents on Hyperliquid DEX",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "tsx tests/test-hyperliquid-api.ts",
+    "test:read-only": "tsx tests/test-read-only.ts",
+    "test:mainnet": "tsx tests/test-mainnet.ts",
+    "test:mainnet:trade": "tsx tests/test-mainnet-trade.ts",
+    "close:btc": "tsx tests/close-position.ts BTC",
+    "close": "tsx tests/close-position.ts",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepublishOnly": "npm run build",
+    "example:onefile": "tsx examples/one-file-strategy.ts",
+    "example:custom": "tsx examples/custom-logic-strategy.ts",
+    "example:simple": "tsx examples/simple-trader.ts",
+    "example:momentum": "tsx examples/momentum-bot.ts",
+    "example:autonomous": "tsx examples/autonomous-agent.ts",
+    "example:langchain": "tsx examples/langchain-integration.ts",
+    "example:production": "tsx examples/secure-production.ts"
+  },
+  "keywords": [
+    "hyperliquid",
+    "trading",
+    "ai-agent",
+    "defi",
+    "perpetuals",
+    "crypto",
+    "autonomous-trading"
+  ],
+  "author": "hyperClaw",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/agent-sdk"
+  },
+  "dependencies": {
+    "@nktkas/hyperliquid": "^0.31.0",
+    "@noble/hashes": "^1.5.0",
+    "viem": "^2.31.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.7.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "langchain": "^0.1.0",
+    "@turnkey/http": "^3.0.0",
+    "@turnkey/api-key-stamper": "^1.0.0",
+    "@turnkey/viem": "^1.0.0",
+    "@privy-io/node": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "langchain": {
+      "optional": true
+    },
+    "@turnkey/http": {
+      "optional": true
+    },
+    "@turnkey/api-key-stamper": {
+      "optional": true
+    },
+    "@turnkey/viem": {
+      "optional": true
+    },
+    "@privy-io/node": {
+      "optional": true
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -159,6 +159,34 @@ const agent = new HyperliquidAgent({
 await agent.start();
 ```
 
+### 3. Connect OpenAI or Ollama
+```typescript
+import OpenAI from 'openai';
+import {
+  getOpenAITools,
+  executeTool,
+} from '@hyperliquid/agent-sdk';
+
+// OpenAI:
+const llm = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Ollama (OpenAI-compatible endpoint):
+// const llm = new OpenAI({ baseURL: 'http://localhost:11434/v1', apiKey: 'ollama' });
+
+const tools = getOpenAITools();
+const response = await llm.chat.completions.create({
+  model: 'gpt-4o-mini', // or your Ollama model name
+  messages: [{ role: 'user', content: 'Buy $10 HYPE spot' }],
+  tools,
+});
+
+const call = response.choices[0]?.message?.tool_calls?.[0];
+if (call?.function) {
+  const result = await executeTool(call.function.name, call.function.arguments, toolkit);
+  console.log(result);
+}
+```
+
 ## Architecture
 
 ```
@@ -237,7 +265,7 @@ See [examples/](./examples) for complete code.
 - **[Architecture](./docs/ARCHITECTURE.md)** - In-depth design and patterns
 - **[API Reference](./docs/API.md)** - Complete API documentation
 - **[OpenAI Integration](./docs/OPENAI_INTEGRATION.md)** - Tool schema + execution wiring
-- **[Security Best Practices](./docs/SECURITY.md)** - Production deployment guide
+- **[Wallets](./docs/WALLETS.md)** - Wallet setup and security notes
 - **[Contributing](./CONTRIBUTING.md)** - How to contribute
 
 ## Comparison with Other Frameworks

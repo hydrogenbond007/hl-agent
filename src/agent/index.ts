@@ -10,3 +10,9 @@ export type { OpenAIAdapterConfig } from './adapters/openai.js';
 
 export { AnthropicAdapter } from './adapters/anthropic.js';
 export type { AnthropicAdapterConfig } from './adapters/anthropic.js';
+
+export { startAgentMonitorServer } from './monitor-server.js';
+export type {
+  AgentMonitorServer,
+  AgentMonitorServerConfig,
+} from './monitor-server.js';

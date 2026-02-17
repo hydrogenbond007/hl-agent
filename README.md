@@ -75,6 +75,23 @@ if (toolCall?.function) {
 }
 ```
 
+## Live Monitor UI
+
+Run an agent with a local dashboard:
+
+```bash
+npm run example:monitor
+```
+
+Then open `http://127.0.0.1:8787`.
+
+The dashboard shows:
+- recent trades
+- open positions
+- account value and available balance
+- PnL since session start (derived from account value delta)
+- unrealized PnL from current positions
+
 ## What You Get
 
 - High-level trading toolkit (`getMarketData`, `openPosition`, `closePosition`, `cancelOrders`)
@@ -89,6 +106,7 @@ if (toolCall?.function) {
 - `/examples/simple-trader.ts`
 - `/examples/langchain-integration.ts`
 - `/examples/autonomous-agent.ts`
+- `/examples/agent-monitor.ts`
 
 ## Docs
 

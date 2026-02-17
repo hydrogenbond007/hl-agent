@@ -39,6 +39,7 @@ export {
   HyperliquidAgent,
   OpenAIAdapter,
   AnthropicAdapter,
+  startAgentMonitorServer,
 } from './agent/index.js';
 
 export type { 
@@ -46,6 +47,8 @@ export type {
   AgentExecutionContext,
   OpenAIAdapterConfig,
   AnthropicAdapterConfig,
+  AgentMonitorServer,
+  AgentMonitorServerConfig,
 } from './agent/index.js';
 
 // ============================================

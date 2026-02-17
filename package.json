@@ -22,6 +22,7 @@
     "example:simple": "tsx examples/simple-trader.ts",
     "example:momentum": "tsx examples/momentum-bot.ts",
     "example:autonomous": "tsx examples/autonomous-agent.ts",
+    "example:monitor": "tsx examples/agent-monitor.ts",
     "example:langchain": "tsx examples/langchain-integration.ts",
     "example:production": "tsx examples/secure-production.ts"
   },

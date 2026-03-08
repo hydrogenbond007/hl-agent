@@ -75,6 +75,20 @@ if (toolCall?.function) {
 }
 ```
 
+### Skill Tool (Maitrix)
+
+`buy_skill` is exposed in `getOpenAITools()` for Maitrix tools integration.
+
+```ts
+const catalog = await executeTool('buy_skill', {}, toolkit); // list injectable skills
+
+const purchased = await executeTool('buy_skill', {
+  skillId: 'hl.perp-executor.v1',
+  targetAgent: 'momentum-bot',
+  autoInject: true,
+}, toolkit);
+```
+
 ## Live Monitor UI
 
 Run an agent with a local dashboard:
@@ -84,6 +98,12 @@ npm run example:monitor
 ```
 
 Then open `http://127.0.0.1:8787`.
+
+For Ollama (OpenAI-compatible endpoint), run:
+
+```bash
+OPENAI_BASE_URL=http://localhost:11434/v1 OPENAI_MODEL=llama3.1 npm run example:monitor
+```
 
 The dashboard shows:
 - recent trades

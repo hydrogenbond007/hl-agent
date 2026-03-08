@@ -10,6 +10,7 @@ import type {
   TradeLog,
   AgentAction 
 } from '../types/index.js';
+import { executeTool as executeIntegrationTool } from '../integrations/openai-tools.js';
 
 export interface AgentExecutionContext {
   /** Current market conditions */
@@ -224,6 +225,54 @@ export class HyperliquidAgent {
         
       case 'get_balance':
         result = await this.#toolkit.getBalance();
+        break;
+
+      case 'buy_skill':
+        result = await executeIntegrationTool(action.type, action.params, this.#toolkit);
+        break;
+
+      case 'get_vault_summaries':
+        result = await (this.#toolkit as any).getVaultSummaries();
+        break;
+
+      case 'get_vault_details':
+        result = await (this.#toolkit as any).getVaultDetails(action.params as any);
+        break;
+
+      case 'get_user_vaults':
+        result = await (this.#toolkit as any).getUserVaults(action.params as any);
+        break;
+
+      case 'create_vault':
+        result = await (this.#toolkit as any).createVault(action.params as any);
+        break;
+
+      case 'vault_transfer':
+        result = await (this.#toolkit as any).vaultTransfer(action.params as any);
+        break;
+
+      case 'get_staking_summary':
+        result = await (this.#toolkit as any).getStakingSummary(action.params as any);
+        break;
+
+      case 'get_staking_rewards':
+        result = await (this.#toolkit as any).getStakingRewards(action.params as any);
+        break;
+
+      case 'staking_deposit':
+        result = await (this.#toolkit as any).stakingDeposit(action.params as any);
+        break;
+
+      case 'staking_withdraw':
+        result = await (this.#toolkit as any).stakingWithdraw(action.params as any);
+        break;
+
+      case 'delegate_stake':
+        result = await (this.#toolkit as any).delegateStake(action.params as any);
+        break;
+
+      case 'claim_rewards':
+        result = await (this.#toolkit as any).claimRewards();
         break;
         
       default:

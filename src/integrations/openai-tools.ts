@@ -28,6 +28,15 @@ export interface OpenAIToolDefinition {
   function: OpenAIFunctionDefinition;
 }
 
+interface InjectableSkill {
+  id: string;
+  name: string;
+  category: 'execution' | 'risk' | 'yield' | 'analytics';
+  description: string;
+  priceUsd: number;
+  capabilities: string[];
+}
+
 const NUMERIC_FIELDS = new Set([
   'sizeUsd',
   'sizeCoin',
@@ -40,7 +49,54 @@ const NUMERIC_FIELDS = new Set([
   'limitPrice',
   'percent',
   'depth',
+  'initialUsd',
+  'amountUsd',
+  'amountToken',
+  'maxSpendUsd',
 ]);
+
+const INJECTABLE_SKILLS: InjectableSkill[] = [
+  {
+    id: 'hl.spot-executor.v1',
+    name: 'Spot Executor',
+    category: 'execution',
+    description: 'Executes spot entries/exits with minimum notional and slippage checks.',
+    priceUsd: 19,
+    capabilities: ['spot-entry', 'spot-exit', 'slippage-guard'],
+  },
+  {
+    id: 'hl.perp-executor.v1',
+    name: 'Perp Executor',
+    category: 'execution',
+    description: 'Executes perp orders with leverage, reduce-only close, and TP/SL support.',
+    priceUsd: 29,
+    capabilities: ['perp-entry', 'perp-close', 'tp-sl-orders'],
+  },
+  {
+    id: 'hl.risk-guard.v1',
+    name: 'Risk Guard',
+    category: 'risk',
+    description: 'Blocks unsafe actions using max leverage, exposure, and drawdown limits.',
+    priceUsd: 25,
+    capabilities: ['max-leverage', 'position-limits', 'drawdown-kill-switch'],
+  },
+  {
+    id: 'hl.vault-allocator.v1',
+    name: 'Vault Allocator',
+    category: 'yield',
+    description: 'Automates vault discovery and allocation flows with deposit/withdraw rules.',
+    priceUsd: 22,
+    capabilities: ['vault-discovery', 'vault-allocate', 'vault-rebalance'],
+  },
+  {
+    id: 'hl.staking-manager.v1',
+    name: 'Staking Manager',
+    category: 'yield',
+    description: 'Handles staking deposits, delegation, undelegation, and reward claims.',
+    priceUsd: 18,
+    capabilities: ['staking-deposit', 'delegate', 'claim-rewards'],
+  },
+];
 
 function normalizeParams(params: Record<string, unknown>): Record<string, unknown> {
   const normalized: Record<string, unknown> = {};
@@ -114,6 +170,32 @@ function normalizeOpenPositionParams(params: Record<string, unknown>): Record<st
  */
 export function getToolDefinitions(): ToolDefinition[] {
   return [
+    {
+      name: 'buy_skill',
+      description: 'List and purchase injectable skills for the Maitrix tools section. Call without skillId to view available skills.',
+      parameters: {
+        type: 'object',
+        properties: {
+          skillId: {
+            type: 'string',
+            description: 'Skill ID to purchase and inject (leave empty to list skills).',
+          },
+          targetAgent: {
+            type: 'string',
+            description: 'Optional Maitrix agent/workspace target for injection.',
+          },
+          maxSpendUsd: {
+            type: 'number',
+            description: 'Optional spending cap in USD. Purchase fails if price exceeds this cap.',
+          },
+          autoInject: {
+            type: 'boolean',
+            description: 'If true, returns an injection-ready payload for Maitrix tools.',
+          },
+        },
+        required: [],
+      },
+    },
     {
       name: 'get_markets',
       description: 'Get current market data for cryptocurrencies on Hyperliquid. Returns price, volume, funding rate, and open interest.',
@@ -266,6 +348,135 @@ export function getToolDefinitions(): ToolDefinition[] {
         required: ['coin'],
       },
     },
+    {
+      name: 'get_vault_summaries',
+      description: 'Get recent vault summaries.',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+    {
+      name: 'get_vault_details',
+      description: 'Get details for a specific vault address.',
+      parameters: {
+        type: 'object',
+        properties: {
+          vaultAddress: {
+            type: 'string',
+            description: 'Vault address (0x...)',
+          },
+        },
+        required: ['vaultAddress'],
+      },
+    },
+    {
+      name: 'get_user_vaults',
+      description: 'Get vault equities/deposits for a user (defaults to connected wallet).',
+      parameters: {
+        type: 'object',
+        properties: {
+          user: {
+            type: 'string',
+            description: 'User address (optional)',
+          },
+        },
+        required: [],
+      },
+    },
+    {
+      name: 'create_vault',
+      description: 'Create a new vault with an initial USD deposit.',
+      parameters: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Vault name' },
+          description: { type: 'string', description: 'Vault description' },
+          initialUsd: { type: 'number', description: 'Initial deposit amount in USD' },
+        },
+        required: ['name', 'description', 'initialUsd'],
+      },
+    },
+    {
+      name: 'vault_transfer',
+      description: 'Deposit to or withdraw from a vault.',
+      parameters: {
+        type: 'object',
+        properties: {
+          vaultAddress: { type: 'string', description: 'Vault address (0x...)' },
+          isDeposit: { type: 'boolean', description: 'True to deposit, false to withdraw' },
+          amountUsd: { type: 'number', description: 'Amount in USD' },
+        },
+        required: ['vaultAddress', 'isDeposit', 'amountUsd'],
+      },
+    },
+    {
+      name: 'get_staking_summary',
+      description: 'Get staking summary for a user (defaults to connected wallet).',
+      parameters: {
+        type: 'object',
+        properties: {
+          user: { type: 'string', description: 'User address (optional)' },
+        },
+        required: [],
+      },
+    },
+    {
+      name: 'get_staking_rewards',
+      description: 'Get staking rewards history for a user (defaults to connected wallet).',
+      parameters: {
+        type: 'object',
+        properties: {
+          user: { type: 'string', description: 'User address (optional)' },
+        },
+        required: [],
+      },
+    },
+    {
+      name: 'staking_deposit',
+      description: 'Deposit native token into staking balance.',
+      parameters: {
+        type: 'object',
+        properties: {
+          amountToken: { type: 'number', description: 'Amount in token units (e.g., HYPE)' },
+        },
+        required: ['amountToken'],
+      },
+    },
+    {
+      name: 'staking_withdraw',
+      description: 'Withdraw native token from staking balance.',
+      parameters: {
+        type: 'object',
+        properties: {
+          amountToken: { type: 'number', description: 'Amount in token units (e.g., HYPE)' },
+        },
+        required: ['amountToken'],
+      },
+    },
+    {
+      name: 'delegate_stake',
+      description: 'Delegate or undelegate staked tokens to a validator.',
+      parameters: {
+        type: 'object',
+        properties: {
+          validator: { type: 'string', description: 'Validator address (0x...)' },
+          amountToken: { type: 'number', description: 'Amount in token units (e.g., HYPE)' },
+          isUndelegate: { type: 'boolean', description: 'Set true to undelegate' },
+        },
+        required: ['validator', 'amountToken'],
+      },
+    },
+    {
+      name: 'claim_rewards',
+      description: 'Claim available rewards.',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
   ];
 }
 
@@ -323,6 +534,8 @@ export async function executeTool(
   const safeParams = normalizeParams(coerceToolParams(params));
 
   switch (toolName) {
+    case 'buy_skill':
+      return executeBuySkillTool(safeParams);
     case 'get_markets':
       return toolkit.getMarketData(safeParams);
     case 'get_positions':
@@ -337,7 +550,101 @@ export async function executeTool(
       return toolkit.cancelOrders(safeParams);
     case 'get_orderbook':
       return toolkit.getOrderBook(safeParams);
+    case 'get_vault_summaries':
+      return toolkit.getVaultSummaries();
+    case 'get_vault_details':
+      return toolkit.getVaultDetails(safeParams);
+    case 'get_user_vaults':
+      return toolkit.getUserVaults(safeParams);
+    case 'create_vault':
+      return toolkit.createVault(safeParams);
+    case 'vault_transfer':
+      return toolkit.vaultTransfer(safeParams);
+    case 'get_staking_summary':
+      return toolkit.getStakingSummary(safeParams);
+    case 'get_staking_rewards':
+      return toolkit.getStakingRewards(safeParams);
+    case 'staking_deposit':
+      return toolkit.stakingDeposit(safeParams);
+    case 'staking_withdraw':
+      return toolkit.stakingWithdraw(safeParams);
+    case 'delegate_stake':
+      return toolkit.delegateStake(safeParams);
+    case 'claim_rewards':
+      return toolkit.claimRewards();
     default:
       throw new Error(`Unknown tool: ${toolName}`);
   }
+}
+
+function executeBuySkillTool(params: Record<string, unknown>): {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+  timestamp: number;
+} {
+  const timestamp = Date.now();
+  const requestedSkillId = typeof params.skillId === 'string'
+    ? params.skillId.trim().toLowerCase()
+    : '';
+
+  if (!requestedSkillId) {
+    return {
+      success: true,
+      data: {
+        mode: 'catalog',
+        skills: INJECTABLE_SKILLS,
+        count: INJECTABLE_SKILLS.length,
+        message: 'Pass skillId to buy and get an injection payload for the Maitrix tools section.',
+      },
+      timestamp,
+    };
+  }
+
+  const selected = INJECTABLE_SKILLS.find(skill => skill.id.toLowerCase() === requestedSkillId);
+  if (!selected) {
+    return {
+      success: false,
+      error: `Unknown skillId "${requestedSkillId}". Available skillIds: ${INJECTABLE_SKILLS.map(skill => skill.id).join(', ')}`,
+      timestamp,
+    };
+  }
+
+  if (typeof params.maxSpendUsd === 'number' && Number.isFinite(params.maxSpendUsd) && params.maxSpendUsd < selected.priceUsd) {
+    return {
+      success: false,
+      error: `Skill ${selected.id} costs ${selected.priceUsd} USD which is above maxSpendUsd=${params.maxSpendUsd}.`,
+      timestamp,
+    };
+  }
+
+  const targetAgent = typeof params.targetAgent === 'string' && params.targetAgent.trim()
+    ? params.targetAgent.trim()
+    : 'default-agent';
+  const autoInject = params.autoInject === true;
+
+  return {
+    success: true,
+    data: {
+      mode: 'purchase',
+      purchased: true,
+      skill: selected,
+      targetAgent,
+      autoInject,
+      invoice: {
+        currency: 'USDC',
+        amountUsd: selected.priceUsd,
+      },
+      maitrixInjection: {
+        tool: 'buy_skill',
+        skillId: selected.id,
+        targetAgent,
+        enabledCapabilities: selected.capabilities,
+      },
+      message: autoInject
+        ? 'Use maitrixInjection directly in the Maitrix tools section.'
+        : 'Set autoInject=true to receive an injection-ready configuration payload.',
+    },
+    timestamp,
+  };
 }

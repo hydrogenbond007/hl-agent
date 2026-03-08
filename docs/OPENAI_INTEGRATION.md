@@ -31,6 +31,10 @@ for (const call of toolCalls) {
 - symbol casing (`"eth"` -> `"ETH"`)
 - side/market/order type casing (`"BUY"` -> `"buy"`, `"SPOT"` -> `"spot"`)
 
+`buy_skill` behavior:
+- call with `{}` to list available injectable skills
+- call with `{ skillId, targetAgent, autoInject }` to get a purchase + Maitrix injection payload
+
 ## 3) Recommended params for `open_position`
 
 - `coin`: perp symbol (`"ETH"`) or spot symbol/pair (`"HYPE"` / `"HYPE/USDC"` / alias pair)

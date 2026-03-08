@@ -140,6 +140,24 @@ export interface ClosePositionParams {
   slippagePercent?: number;
 }
 
+export interface CreateVaultParams {
+  name: string;
+  description: string;
+  initialUsd: number;
+}
+
+export interface VaultTransferParams {
+  vaultAddress: `0x${string}`;
+  isDeposit: boolean;
+  amountUsd: number;
+}
+
+export interface DelegateStakeParams {
+  validator: `0x${string}`;
+  amountToken: number;
+  isUndelegate?: boolean;
+}
+
 /**
  * Action result
  */
@@ -156,7 +174,12 @@ export interface ActionResult<T = unknown> {
  */
 export interface AgentAction {
   type: 'get_markets' | 'get_positions' | 'open_position' | 'close_position' | 
-        'set_leverage' | 'get_balance' | 'cancel_orders';
+        'set_leverage' | 'get_balance' | 'cancel_orders' |
+        'buy_skill' |
+        'get_vault_summaries' | 'get_vault_details' | 'get_user_vaults' |
+        'create_vault' | 'vault_transfer' | 'get_staking_summary' |
+        'get_staking_rewards' | 'staking_deposit' | 'staking_withdraw' |
+        'delegate_stake' | 'claim_rewards';
   params: Record<string, unknown>;
   metadata?: {
     reasoning?: string;
